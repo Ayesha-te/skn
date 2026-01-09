@@ -2,7 +2,7 @@ import requests
 import base64
 
 def test_login(username, password):
-    url = "http://localhost:8000/api/me/"
+    url = "https://sleepy-carrie-ayesha25-2b164d3d.koyeb.app/api/me/"
     auth = base64.b64encode(f"{username}:{password}".encode()).decode()
     headers = {
         "Authorization": f"Basic {auth}"
@@ -15,7 +15,7 @@ def test_login(username, password):
         print(f"Error: {e}")
 
 def test_register(username, email, password):
-    url = "http://localhost:8000/api/register/"
+    url = "https://sleepy-carrie-ayesha25-2b164d3d.koyeb.app/api/register/"
     data = {
         "username": username,
         "email": email,

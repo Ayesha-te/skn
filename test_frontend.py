@@ -1,7 +1,7 @@
 import requests
 import json
 
-response = requests.get('http://localhost:8000/api/products/')
+response = requests.get('https://sleepy-carrie-ayesha25-2b164d3d.koyeb.app/api/products/')
 products = response.json()
 
 print(f"Total products: {len(products)}")
@@ -15,7 +15,7 @@ if products:
     print(f"  - Bestseller: {p['bestseller']}")
     print(f"  - Created At: {p['created_at']}")
 
-response = requests.get('http://localhost:8000/api/categories/')
+response = requests.get('https://sleepy-carrie-ayesha25-2b164d3d.koyeb.app/api/categories/')
 categories = response.json()
 print(f"\nTotal categories: {len(categories)}")
 for c in categories:
