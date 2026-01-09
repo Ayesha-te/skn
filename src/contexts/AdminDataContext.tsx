@@ -7,6 +7,9 @@ const API_BASE_URL = `${BASE_URL}/api`;
 const formatUrl = (url: string | undefined) => {
   if (!url) return undefined;
   if (url.startsWith('http')) return url;
+  if (url.startsWith('/placeholder.svg')) return url;
+  if (url.startsWith('/media/')) return `${BASE_URL}${url}`;
+  if (url.startsWith('/')) return url;
   return `${BASE_URL}${url}`;
 };
 
@@ -23,6 +26,9 @@ interface AdminDataContextType {
   addProduct: (product: FormData) => Promise<void>;
   updateProduct: (id: string, product: FormData | Partial<Product>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
+  addCategory: (category: FormData) => Promise<void>;
+  updateCategory: (id: string, category: FormData | Partial<Category>) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
   addOrder: (order: Omit<Order, "id" | "createdAt" | "status">) => Promise<void>;
   updateOrderStatus: (id: string, status: Order["status"]) => Promise<void>;
   addCollection: (collection: FormData) => Promise<void>;
@@ -220,36 +226,129 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const addProduct = async (formData: FormData) => {
-    await fetch(`${API_BASE_URL}/products/`, {
-      method: 'POST',
-      headers: getAuthHeader(),
-      credentials: 'include',
-      body: formData
-    });
-    await refreshProducts();
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/`, {
+        method: 'POST',
+        headers: getAuthHeader(),
+        credentials: 'include',
+        body: formData
+      });
+      if (!response.ok) {
+        const error = await response.text();
+        console.error("Failed to add product:", error);
+        throw new Error(`Failed to add product: ${response.status} ${response.statusText}`);
+      }
+      await refreshProducts();
+    } catch (error) {
+      console.error("Error adding product:", error);
+      throw error;
+    }
   };
 
   const updateProduct = async (id: string, product: FormData | Partial<Product>) => {
-    const isFormData = product instanceof FormData;
-    await fetch(`${API_BASE_URL}/products/${id}/`, {
-      method: 'PATCH',
-      headers: {
-        ...getAuthHeader(),
-        ...(isFormData ? {} : { 'Content-Type': 'application/json' })
-      },
-      credentials: 'include',
-      body: isFormData ? product : JSON.stringify(product)
-    });
-    await refreshProducts();
+    try {
+      const isFormData = product instanceof FormData;
+      const response = await fetch(`${API_BASE_URL}/products/${id}/`, {
+        method: 'PATCH',
+        headers: {
+          ...getAuthHeader(),
+          ...(isFormData ? {} : { 'Content-Type': 'application/json' })
+        },
+        credentials: 'include',
+        body: isFormData ? product : JSON.stringify(product)
+      });
+      if (!response.ok) {
+        const error = await response.text();
+        console.error("Failed to update product:", error);
+        throw new Error(`Failed to update product: ${response.status} ${response.statusText}`);
+      }
+      await refreshProducts();
+    } catch (error) {
+      console.error("Error updating product:", error);
+      throw error;
+    }
   };
 
   const deleteProduct = async (id: string) => {
-    await fetch(`${API_BASE_URL}/products/${id}/`, {
-      method: 'DELETE',
-      headers: getAuthHeader(),
-      credentials: 'include'
-    });
-    await refreshProducts();
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/${id}/`, {
+        method: 'DELETE',
+        headers: getAuthHeader(),
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        const error = await response.text();
+        console.error("Failed to delete product:", error);
+        throw new Error(`Failed to delete product: ${response.status} ${response.statusText}`);
+      }
+      await refreshProducts();
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      throw error;
+    }
+  };
+
+  const addCategory = async (formData: FormData) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/categories/`, {
+        method: 'POST',
+        headers: getAuthHeader(),
+        credentials: 'include',
+        body: formData
+      });
+      if (!response.ok) {
+        const error = await response.text();
+        console.error("Failed to add category:", error);
+        throw new Error(`Failed to add category: ${response.status} ${response.statusText}`);
+      }
+      await refreshCategories();
+    } catch (error) {
+      console.error("Error adding category:", error);
+      throw error;
+    }
+  };
+
+  const updateCategory = async (id: string, category: FormData | Partial<Category>) => {
+    try {
+      const isFormData = category instanceof FormData;
+      const response = await fetch(`${API_BASE_URL}/categories/${id}/`, {
+        method: 'PATCH',
+        headers: {
+          ...getAuthHeader(),
+          ...(isFormData ? {} : { 'Content-Type': 'application/json' })
+        },
+        credentials: 'include',
+        body: isFormData ? category : JSON.stringify(category)
+      });
+      if (!response.ok) {
+        const error = await response.text();
+        console.error("Failed to update category:", error);
+        throw new Error(`Failed to update category: ${response.status} ${response.statusText}`);
+      }
+      await refreshCategories();
+    } catch (error) {
+      console.error("Error updating category:", error);
+      throw error;
+    }
+  };
+
+  const deleteCategory = async (id: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/categories/${id}/`, {
+        method: 'DELETE',
+        headers: getAuthHeader(),
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        const error = await response.text();
+        console.error("Failed to delete category:", error);
+        throw new Error(`Failed to delete category: ${response.status} ${response.statusText}`);
+      }
+      await refreshCategories();
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      throw error;
+    }
   };
 
   const addOrder = async (orderData: Omit<Order, "id" | "createdAt" | "status">) => {
@@ -301,36 +400,66 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const addCollection = async (formData: FormData) => {
-    await fetch(`${API_BASE_URL}/collections/`, {
-      method: 'POST',
-      headers: getAuthHeader(),
-      credentials: 'include',
-      body: formData
-    });
-    await refreshCollections();
+    try {
+      const response = await fetch(`${API_BASE_URL}/collections/`, {
+        method: 'POST',
+        headers: getAuthHeader(),
+        credentials: 'include',
+        body: formData
+      });
+      if (!response.ok) {
+        const error = await response.text();
+        console.error("Failed to add collection:", error);
+        throw new Error(`Failed to add collection: ${response.status} ${response.statusText}`);
+      }
+      await refreshCollections();
+    } catch (error) {
+      console.error("Error adding collection:", error);
+      throw error;
+    }
   };
 
   const updateCollection = async (id: string, collection: FormData | Partial<Collection>) => {
-    const isFormData = collection instanceof FormData;
-    await fetch(`${API_BASE_URL}/collections/${id}/`, {
-      method: 'PATCH',
-      headers: {
-        ...getAuthHeader(),
-        ...(isFormData ? {} : { 'Content-Type': 'application/json' })
-      },
-      credentials: 'include',
-      body: isFormData ? collection : JSON.stringify(collection)
-    });
-    await refreshCollections();
+    try {
+      const isFormData = collection instanceof FormData;
+      const response = await fetch(`${API_BASE_URL}/collections/${id}/`, {
+        method: 'PATCH',
+        headers: {
+          ...getAuthHeader(),
+          ...(isFormData ? {} : { 'Content-Type': 'application/json' })
+        },
+        credentials: 'include',
+        body: isFormData ? collection : JSON.stringify(collection)
+      });
+      if (!response.ok) {
+        const error = await response.text();
+        console.error("Failed to update collection:", error);
+        throw new Error(`Failed to update collection: ${response.status} ${response.statusText}`);
+      }
+      await refreshCollections();
+    } catch (error) {
+      console.error("Error updating collection:", error);
+      throw error;
+    }
   };
 
   const deleteCollection = async (id: string) => {
-    await fetch(`${API_BASE_URL}/collections/${id}/`, {
-      method: 'DELETE',
-      headers: getAuthHeader(),
-      credentials: 'include'
-    });
-    await refreshCollections();
+    try {
+      const response = await fetch(`${API_BASE_URL}/collections/${id}/`, {
+        method: 'DELETE',
+        headers: getAuthHeader(),
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        const error = await response.text();
+        console.error("Failed to delete collection:", error);
+        throw new Error(`Failed to delete collection: ${response.status} ${response.statusText}`);
+      }
+      await refreshCollections();
+    } catch (error) {
+      console.error("Error deleting collection:", error);
+      throw error;
+    }
   };
 
   return (
@@ -348,6 +477,9 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         addProduct,
         updateProduct,
         deleteProduct,
+        addCategory,
+        updateCategory,
+        deleteCategory,
         addOrder,
         updateOrderStatus,
         addCollection,
