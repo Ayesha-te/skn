@@ -3,11 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
-import { useAdminData } from "@/contexts/AdminDataContext";
 
 const Checkout = () => {
-  const { items, totalPrice, clearCart } = useCart();
-  const { addOrder } = useAdminData();
+  const { items, totalPrice } = useCart();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -22,56 +20,81 @@ const Checkout = () => {
     phone: "",
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const deliveryChargesSum = items.reduce((sum, item) => {
-    return sum + (item.product.deliveryCharges || 0) * item.quantity;
-  }, 0);
-
-  const shippingCost = deliveryChargesSum > 0 ? deliveryChargesSum : (totalPrice > 200 ? 0 : 15);
-  const grandTotal = totalPrice + shippingCost;
+  // shipping + totals
+  const shippingCost = totalPrice > 200 ? 0 : 15;
+  const grandTotal = totalPrice + shippingCost; // in dollars
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsProcessing(true);
+    if (isProcessing) return;
 
-    // Simulate order processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    if (items.length === 0) {
+      toast({
+        title: "Your cart is empty",
+        description: "Please add some products before checking out.",
+      });
+      return;
+    }
 
-    // Save order to admin data
+    // You could add basic form validation here if you want
+
     try {
-      await addOrder({
-        customer: formData,
-        items: items.map(item => ({
-          productId: item.product.id,
-          name: item.product.name,
-          price: item.product.price,
-          quantity: item.quantity,
-          image: item.product.image
-        })),
-        total: grandTotal,
-        shipping: shippingCost
-      });
+      setIsProcessing(true);
 
-      clearCart();
-      setIsProcessing(false);
-      
-      toast({
-        title: "Order Confirmed!",
-        description: "Thank you for your purchase. You will receive a confirmation email shortly.",
-      });
-      
-      navigate("/order-confirmation");
+      // Stripe expects the amount in the smallest currency unit
+      // For USD: dollars -> cents (e.g. 199.99 -> 19999)
+      const amountInCents = Math.round(grandTotal * 100);
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/payments/create-checkout-session/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount: amountInCents,
+            currency: "usd",
+            // You can also send customer info here if you want:
+            email: formData.email,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.url) {
+        console.error("Stripe error:", data);
+        toast({
+          title: "Payment error",
+          description: "Something went wrong starting the payment. Please try again.",
+          variant: "destructive",
+        });
+        setIsProcessing(false);
+        return;
+      }
+
+      // Redirect user to Stripe Checkout
+      window.location.href = data.url;
+      // After this, Stripe takes over. User will return to
+      // http://localhost:5173/order-confirmation on success (from backend success_url)
+
     } catch (error) {
-      console.error("Order submission failed:", error);
-      setIsProcessing(false);
+      console.error(error);
       toast({
-        title: "Order Failed",
-        description: "There was an error processing your order. Please try again.",
+        title: "Network error",
+        description: "Could not connect to payment server. Please try again.",
         variant: "destructive",
       });
+      setIsProcessing(false);
     }
   };
 
@@ -197,10 +220,12 @@ const Checkout = () => {
 
                 {/* Payment Notice */}
                 <div className="p-4 bg-secondary text-sm">
-                  <p className="font-medium mb-2">Demo Mode</p>
+                  <p className="font-medium mb-2">Test Mode</p>
                   <p className="text-muted-foreground">
-                    This is a frontend demo. No actual payment will be processed.
-                    Click "Place Order" to simulate a purchase.
+                    Payments are currently in Stripe test mode. Use card number
+                    <span className="font-mono"> 4242 4242 4242 4242</span> with
+                    any future expiry date and any CVC to simulate a successful
+                    payment.
                   </p>
                 </div>
               </div>
@@ -224,7 +249,9 @@ const Checkout = () => {
                           </span>
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium">{item.product.name}</p>
+                          <p className="text-sm font-medium">
+                            {item.product.name}
+                          </p>
                           <p className="text-xs text-muted-foreground">
                             {item.product.category}
                           </p>
@@ -244,7 +271,9 @@ const Checkout = () => {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Shipping</span>
                       <span>
-                        {shippingCost === 0 ? "Free" : `$${shippingCost.toFixed(2)}`}
+                        {shippingCost === 0
+                          ? "Free"
+                          : `$${shippingCost.toFixed(2)}`}
                       </span>
                     </div>
                     {shippingCost > 0 && (
@@ -266,7 +295,7 @@ const Checkout = () => {
                     disabled={isProcessing}
                     className="luxury-button w-full text-center mt-6 disabled:opacity-50"
                   >
-                    {isProcessing ? "Processing..." : "Place Order"}
+                    {isProcessing ? "Redirecting to Stripe..." : "Pay with Card"}
                   </button>
                 </div>
               </div>
