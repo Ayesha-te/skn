@@ -52,7 +52,7 @@ const Checkout = () => {
       const amountInCents = Math.round(grandTotal * 100);
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/payments/create-checkout-session/",
+        "sleepy-carrie-ayesha25-2b164d3d.koyeb.app/api/payments/create-checkout-session/",
         {
           method: "POST",
           headers: {
