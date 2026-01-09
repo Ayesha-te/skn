@@ -1,5 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { Link } from "react-router-dom";
+import missionImg from "@/images/2nd.jpeg";
+
 
 const About = () => {
   return (
@@ -25,7 +27,13 @@ const About = () => {
       <section className="py-20 md:py-28">
         <div className="luxury-container">
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
-            <div className="aspect-[4/5] bg-secondary" />
+<div className="aspect-[4/5] relative overflow-hidden rounded-xl">
+  <img
+    src={missionImg}
+    alt="Our Mission"
+    className="w-full h-full object-cover"
+  />
+</div>
             <div>
               <p className="luxury-subheading mb-3">Our Mission</p>
               <h2 className="text-3xl md:text-4xl luxury-heading mb-6">

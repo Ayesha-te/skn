@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Layout } from "@/components/layout/Layout";
-import hero from "@/images/hero.webp";
+import hero from "@/images/1st.jpeg";
 import { useAdminData } from "@/contexts/AdminDataContext";
+import promiseImg from "@/images/2nd.jpeg";
+
 
 const Index = () => {
   const { products, categories: backendCategories, collections } = useAdminData();
@@ -191,7 +193,13 @@ const Index = () => {
       <section className="py-20 md:py-28">
         <div className="luxury-container">
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
-            <div className="aspect-square bg-secondary" />
+<div className="aspect-square relative overflow-hidden rounded-xl">
+  <img
+    src={promiseImg}
+    alt="Our Promise"
+    className="w-full h-full object-cover"
+  />
+</div>
             <div>
               <p className="luxury-subheading mb-3">Our Promise</p>
               <h2 className="text-3xl md:text-4xl luxury-heading mb-6">
