@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
+import { API_BASE_URL } from "@/config";
 
 const Checkout = () => {
   const { items, totalPrice } = useCart();
@@ -27,7 +28,11 @@ const Checkout = () => {
   };
 
   // shipping + totals
-  const shippingCost = totalPrice > 200 ? 0 : 15;
+  const shippingCost = items.reduce((sum, item) => {
+    const charge = item.product.delivery_charges || item.product.deliveryCharges || 0;
+    return sum + (Number(charge) * item.quantity);
+  }, 0);
+  
   const grandTotal = totalPrice + shippingCost; // in dollars
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,29 +47,30 @@ const Checkout = () => {
       return;
     }
 
-    // You could add basic form validation here if you want
-
     try {
       setIsProcessing(true);
 
-      // Stripe expects the amount in the smallest currency unit
-      // For USD: dollars -> cents (e.g. 199.99 -> 19999)
-      const amountInCents = Math.round(grandTotal * 100);
-
-const response = await fetch(
-  "https://sleepy-carrie-ayesha25-2b164d3d.koyeb.app/api/payments/create-checkout-session/",
+      const response = await fetch(
+        `${API_BASE_URL}/payments/create-checkout-session/`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            amount: amountInCents,
-            currency: "usd",
-            // You can also send customer info here if you want:
+            items: items.map(item => ({
+              product: { id: item.product.id },
+              quantity: item.quantity
+            })),
+            shipping_cost: shippingCost,
             email: formData.email,
             firstName: formData.firstName,
             lastName: formData.lastName,
+            address: formData.address,
+            city: formData.city,
+            country: formData.country,
+            postalCode: formData.postalCode,
+            phone: formData.phone,
           }),
         }
       );
@@ -276,11 +282,6 @@ const response = await fetch(
                           : `$${shippingCost.toFixed(2)}`}
                       </span>
                     </div>
-                    {shippingCost > 0 && (
-                      <p className="text-xs text-muted-foreground">
-                        Free shipping on orders over $200
-                      </p>
-                    )}
                   </div>
 
                   <div className="border-t border-border mt-4 pt-4">
