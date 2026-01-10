@@ -1,8 +1,12 @@
-import { Link } from "react-router-dom";
-import { CheckCircle } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { CheckCircle, FileDown } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
+import { API_BASE_URL } from "@/config";
 
 const OrderConfirmation = () => {
+  const [searchParams] = useSearchParams();
+  const orderId = searchParams.get("order_id");
+
   return (
     <Layout>
       <div className="py-20 md:py-28">
@@ -21,6 +25,20 @@ const OrderConfirmation = () => {
             <p className="text-muted-foreground mb-8">
               A confirmation email will be sent to your email address shortly.
             </p>
+
+            {orderId && (
+              <div className="mb-8">
+                <a 
+                  href={`${API_BASE_URL}/payments/generate-receipt/${orderId}/`}
+                  className="inline-flex items-center gap-2 text-sm font-medium underline hover:text-muted-foreground transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FileDown className="w-4 h-4" />
+                  Download Your Receipt (PDF)
+                </a>
+              </div>
+            )}
 
             <div className="bg-secondary p-6 mb-8 text-left">
               <h2 className="font-medium mb-4">What's Next?</h2>
