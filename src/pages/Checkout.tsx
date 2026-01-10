@@ -51,8 +51,8 @@ const Checkout = () => {
       // For USD: dollars -> cents (e.g. 199.99 -> 19999)
       const amountInCents = Math.round(grandTotal * 100);
 
-      const response = await fetch(
-        "sleepy-carrie-ayesha25-2b164d3d.koyeb.app/api/payments/create-checkout-session/",
+const response = await fetch(
+  "https://sleepy-carrie-ayesha25-2b164d3d.koyeb.app/api/payments/create-checkout-session/",
         {
           method: "POST",
           headers: {
