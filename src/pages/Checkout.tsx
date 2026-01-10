@@ -91,7 +91,7 @@ const Checkout = () => {
       // Redirect user to Stripe Checkout
       window.location.href = data.url;
       // After this, Stripe takes over. User will return to
-      // http://localhost:5173/order-confirmation on success (from backend success_url)
+      // https://skn-beta.vercel.app/order-confirmation on success (from backend success_url)
 
     } catch (error) {
       console.error(error);
