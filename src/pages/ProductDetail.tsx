@@ -143,7 +143,7 @@ const ProductDetail = () => {
               <h1 className="text-3xl md:text-4xl font-serif font-light mb-4">
                 {product.name}
               </h1>
-              <p className="text-2xl mb-6">€{product.price}</p>
+              <p className="text-2xl mb-6">${product.price}</p>
 
               <p className="text-muted-foreground leading-relaxed mb-8">
                 {product.description}

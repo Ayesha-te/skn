@@ -28,17 +28,17 @@ const ShippingPolicy = () => {
                 </h2>
                 <ul className="space-y-3">
                   <li>
-                    <strong className="text-foreground">Standard Shipping:</strong> 3-5 business days - €15
+                    <strong className="text-foreground">Standard Shipping:</strong> 3-5 business days - $15
                   </li>
                   <li>
-                    <strong className="text-foreground">Express Shipping:</strong> 2-3 business days - €25
+                    <strong className="text-foreground">Express Shipping:</strong> 2-3 business days - $25
                   </li>
                   <li>
-                    <strong className="text-foreground">Overnight Shipping:</strong> 1 business day - €40
+                    <strong className="text-foreground">Overnight Shipping:</strong> 1 business day - $40
                   </li>
                 </ul>
                 <p className="mt-4 leading-relaxed">
-                  Free standard shipping on all orders over €200.
+                  Free standard shipping on all orders over $200.
                 </p>
               </section>
 

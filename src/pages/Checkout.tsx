@@ -5,10 +5,30 @@ import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { API_BASE_URL } from "@/config";
 
+/* =======================
+   CURRENCY CONFIG
+======================= */
+type Currency = "USD" | "GBP" | "AED" | "AUD";
+
+const currencySymbols: Record<Currency, string> = {
+  USD: "$",
+  GBP: "£",
+  AED: "د.إ",
+  AUD: "A$",
+};
+
+const exchangeRates: Record<Currency, number> = {
+  USD: 1,
+  GBP: 0.79,
+  AED: 3.67,
+  AUD: 1.52,
+};
+
 const Checkout = () => {
-  const { items, totalPrice } = useCart();
+  const { items, totalPrice } = useCart(); // prices assumed in USD
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currency, setCurrency] = useState<Currency>("USD");
 
   const [formData, setFormData] = useState({
     email: "",
@@ -21,20 +41,32 @@ const Checkout = () => {
     phone: "",
   });
 
+  const convert = (usd: number) => usd * exchangeRates[currency];
+  const format = (usd: number) =>
+    `${currencySymbols[currency]}${convert(usd).toFixed(2)}`;
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // shipping + totals
-  const shippingCost = items.reduce((sum, item) => {
-    const charge = item.product.delivery_charges || item.product.deliveryCharges || 0;
-    return sum + (Number(charge) * item.quantity);
+  /* =======================
+     SHIPPING + TOTALS
+  ======================= */
+  const shippingCostUSD = items.reduce((sum, item) => {
+    const charge =
+      item.product.delivery_charges ||
+      item.product.deliveryCharges ||
+      0;
+    return sum + Number(charge) * item.quantity;
   }, 0);
-  
-  const grandTotal = totalPrice + shippingCost; // in dollars
 
+  const grandTotalUSD = totalPrice + shippingCostUSD;
+
+  /* =======================
+     SUBMIT
+  ======================= */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isProcessing) return;
@@ -42,7 +74,7 @@ const Checkout = () => {
     if (items.length === 0) {
       toast({
         title: "Your cart is empty",
-        description: "Please add some products before checking out.",
+        description: "Please add products before checkout.",
       });
       return;
     }
@@ -54,23 +86,15 @@ const Checkout = () => {
         `${API_BASE_URL}/payments/create-checkout-session/`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            items: items.map(item => ({
+            items: items.map((item) => ({
               product: { id: item.product.id },
-              quantity: item.quantity
+              quantity: item.quantity,
             })),
-            shipping_cost: shippingCost,
-            email: formData.email,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            address: formData.address,
-            city: formData.city,
-            country: formData.country,
-            postalCode: formData.postalCode,
-            phone: formData.phone,
+            shipping_cost: shippingCostUSD,
+            currency, // ✅ SEND CURRENCY
+            ...formData,
           }),
         }
       );
@@ -78,26 +102,14 @@ const Checkout = () => {
       const data = await response.json();
 
       if (!response.ok || !data.url) {
-        console.error("Stripe error:", data);
-        toast({
-          title: "Payment error",
-          description: "Something went wrong starting the payment. Please try again.",
-          variant: "destructive",
-        });
-        setIsProcessing(false);
-        return;
+        throw new Error(data.error || "Stripe error");
       }
 
-      // Redirect user to Stripe Checkout
       window.location.href = data.url;
-      // After this, Stripe takes over. User will return to
-      // https://skn-beta.vercel.app/order-confirmation on success (from backend success_url)
-
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
       toast({
-        title: "Network error",
-        description: "Could not connect to payment server. Please try again.",
+        title: "Payment error",
+        description: "Could not start payment.",
         variant: "destructive",
       });
       setIsProcessing(false);
@@ -107,15 +119,11 @@ const Checkout = () => {
   if (items.length === 0) {
     return (
       <Layout>
-        <div className="py-20 md:py-28 text-center">
-          <div className="luxury-container">
-            <h1 className="text-3xl md:text-4xl font-serif font-light mb-4">
-              Your Cart is Empty
-            </h1>
-            <Link to="/shop" className="luxury-button">
-              Continue Shopping
-            </Link>
-          </div>
+        <div className="py-20 text-center">
+          <h1 className="text-3xl font-serif mb-4">Your Cart is Empty</h1>
+          <Link to="/shop" className="luxury-button">
+            Continue Shopping
+          </Link>
         </div>
       </Layout>
     );
@@ -123,182 +131,87 @@ const Checkout = () => {
 
   return (
     <Layout>
-      <div className="py-12 md:py-16">
+      <div className="py-16">
         <div className="luxury-container">
-          <h1 className="text-3xl md:text-4xl font-serif font-light text-center mb-12">
+          <h1 className="text-4xl font-serif text-center mb-12">
             Checkout
           </h1>
 
           <form onSubmit={handleSubmit}>
-            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
-              {/* Form */}
+            <div className="grid lg:grid-cols-2 gap-16">
+
+              {/* LEFT */}
               <div className="space-y-8">
-                {/* Contact */}
-                <div>
-                  <h2 className="text-lg font-medium mb-4">Contact</h2>
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email address"
-                    required
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-border bg-transparent text-sm focus:outline-none focus:border-foreground transition-colors"
-                  />
+                <input
+                  name="email"
+                  placeholder="Email"
+                  required
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border"
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <input name="firstName" placeholder="First name" required onChange={handleInputChange} className="px-4 py-3 border"/>
+                  <input name="lastName" placeholder="Last name" required onChange={handleInputChange} className="px-4 py-3 border"/>
                 </div>
-
-                {/* Shipping */}
-                <div>
-                  <h2 className="text-lg font-medium mb-4">Shipping Address</h2>
-                  <div className="grid grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      name="firstName"
-                      placeholder="First name"
-                      required
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      className="px-4 py-3 border border-border bg-transparent text-sm focus:outline-none focus:border-foreground transition-colors"
-                    />
-                    <input
-                      type="text"
-                      name="lastName"
-                      placeholder="Last name"
-                      required
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      className="px-4 py-3 border border-border bg-transparent text-sm focus:outline-none focus:border-foreground transition-colors"
-                    />
-                  </div>
-                  <input
-                    type="text"
-                    name="address"
-                    placeholder="Address"
-                    required
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    className="w-full mt-4 px-4 py-3 border border-border bg-transparent text-sm focus:outline-none focus:border-foreground transition-colors"
-                  />
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    <input
-                      type="text"
-                      name="city"
-                      placeholder="City"
-                      required
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      className="px-4 py-3 border border-border bg-transparent text-sm focus:outline-none focus:border-foreground transition-colors"
-                    />
-                    <input
-                      type="text"
-                      name="postalCode"
-                      placeholder="Postal code"
-                      required
-                      value={formData.postalCode}
-                      onChange={handleInputChange}
-                      className="px-4 py-3 border border-border bg-transparent text-sm focus:outline-none focus:border-foreground transition-colors"
-                    />
-                  </div>
-                  <select
-                    name="country"
-                    required
-                    value={formData.country}
-                    onChange={handleInputChange}
-                    className="w-full mt-4 px-4 py-3 border border-border bg-transparent text-sm focus:outline-none focus:border-foreground transition-colors"
-                  >
-                    <option value="">Select country</option>
-                    <option value="US">United States</option>
-                    <option value="UK">United Kingdom</option>
-                    <option value="CA">Canada</option>
-                    <option value="AU">Australia</option>
-                    <option value="DE">Germany</option>
-                    <option value="FR">France</option>
-                  </select>
-                  <input
-                    type="tel"
-                    name="phone"
-                    placeholder="Phone (optional)"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className="w-full mt-4 px-4 py-3 border border-border bg-transparent text-sm focus:outline-none focus:border-foreground transition-colors"
-                  />
+                <input name="address" placeholder="Address" required onChange={handleInputChange} className="w-full px-4 py-3 border"/>
+                <div className="grid grid-cols-2 gap-4">
+                  <input name="city" placeholder="City" required onChange={handleInputChange} className="px-4 py-3 border"/>
+                  <input name="postalCode" placeholder="Postal code" required onChange={handleInputChange} className="px-4 py-3 border"/>
                 </div>
-
-                {/* Payment Notice */}
-                <div className="p-4 bg-secondary text-sm">
-                  <p className="font-medium mb-2">Test Mode</p>
-                  <p className="text-muted-foreground">
-                    Payments are currently in Stripe test mode. Use card number
-                    <span className="font-mono"> 4242 4242 4242 4242</span> with
-                    any future expiry date and any CVC to simulate a successful
-                    payment.
-                  </p>
-                </div>
+                <input name="country" placeholder="Country" required onChange={handleInputChange} className="w-full px-4 py-3 border"/>
+                <input name="phone" placeholder="Phone" onChange={handleInputChange} className="w-full px-4 py-3 border"/>
               </div>
 
-              {/* Order Summary */}
-              <div>
-                <div className="bg-secondary p-6 md:p-8">
-                  <h2 className="text-lg font-medium mb-6">Order Summary</h2>
+              {/* RIGHT */}
+              <div className="bg-secondary p-8">
 
-                  <ul className="divide-y divide-border">
-                    {items.map((item) => (
-                      <li key={item.product.id} className="flex gap-4 py-4">
-                        <div className="w-16 h-16 bg-background relative">
-                          <img
-                            src={item.product.image}
-                            alt={item.product.name}
-                            className="w-full h-full object-cover"
-                          />
-                          <span className="absolute -top-2 -right-2 w-5 h-5 bg-foreground text-background text-xs flex items-center justify-center rounded-full">
-                            {item.quantity}
-                          </span>
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">
-                            {item.product.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {item.product.category}
-                          </p>
-                        </div>
-                        <p className="text-sm">
-                          €{(item.product.price * item.quantity).toFixed(2)}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="border-t border-border mt-4 pt-4 space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span>€{totalPrice.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Shipping</span>
-                      <span>
-                        {shippingCost === 0
-                          ? "Free"
-                          : `$${shippingCost.toFixed(2)}`}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-border mt-4 pt-4">
-                    <div className="flex justify-between text-lg font-medium">
-                      <span>Total</span>
-                      <span>€{grandTotal.toFixed(2)}</span>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isProcessing}
-                    className="luxury-button w-full text-center mt-6 disabled:opacity-50"
+                {/* Currency selector */}
+                <div className="flex justify-end mb-6">
+                  <select
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value as Currency)}
+                    className="border px-3 py-2 text-sm"
                   >
-                    {isProcessing ? "Redirecting to Stripe..." : "Pay with Card"}
-                  </button>
+                    <option value="USD">USD ($)</option>
+                    <option value="GBP">GBP (£)</option>
+                    <option value="AED">AED (د.إ)</option>
+                    <option value="AUD">AUD (A$)</option>
+                  </select>
                 </div>
+
+                <ul className="divide-y">
+                  {items.map((item) => (
+                    <li key={item.product.id} className="flex justify-between py-4">
+                      <span>{item.product.name} × {item.quantity}</span>
+                      <span>{format(item.product.price * item.quantity)}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-6 space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>{format(totalPrice)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Shipping</span>
+                    <span>{shippingCostUSD === 0 ? "Free" : format(shippingCostUSD)}</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-medium border-t pt-4">
+                    <span>Total</span>
+                    <span>{format(grandTotalUSD)}</span>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="luxury-button w-full mt-6"
+                >
+                  {isProcessing ? "Redirecting..." : "Pay with Card"}
+                </button>
+
               </div>
             </div>
           </form>

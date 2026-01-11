@@ -67,7 +67,7 @@ const Cart = () => {
                             {item.product.category}
                           </p>
                         </div>
-                        <p className="font-medium">€{item.product.price}</p>
+                        <p className="font-medium">${item.product.price}</p>
                       </div>
 
                       <div className="flex items-center justify-between mt-auto">
@@ -132,7 +132,7 @@ const Cart = () => {
                 <div className="border-t border-border mt-6 pt-6">
                   <div className="flex justify-between text-lg font-medium">
                     <span>Total</span>
-                    <span>€{totalPrice.toFixed(2)}</span>
+                    <span>${totalPrice.toFixed(2)}</span>
                   </div>
                 </div>
 
