@@ -134,34 +134,42 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-              {displayCategories.map((category, index) => (
-                <Link
-                  key={category.id}
-                  to={category.href}
-                  className="group relative aspect-[4/5] bg-secondary overflow-hidden"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  {category.image && (
-                    <img
-  src={category.image}
-  alt={category.name}
-className="absolute inset-0 w-full h-full object-cover object-center"
-/>
+  {displayCategories.map((category, index) => (
+    <Link
+      key={category.id}
+      to={category.href}
+      className="group block"
+      style={{ animationDelay: `${index * 0.1}s` }}
+    >
+      {/* Image */}
+      <div className="aspect-[4/5] bg-secondary overflow-hidden">
+        {category.image && (
+          <img
+            src={category.image}
+            alt={category.name}
+            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+          />
+        )}
+      </div>
 
-                  )}
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-300" />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
-                    <h3 className="text-2xl font-serif font-light mb-2 text-white group-hover:tracking-wider transition-all duration-300">
-                      {category.name}
-                    </h3>
-                    <p className="text-sm text-white/80">{category.description}</p>
-                    <span className="mt-4 text-xs uppercase tracking-[0.15em] border-b border-white pb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white">
-                      View Category
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
+      {/* Text below image */}
+      <div className="mt-5 text-center px-4">
+        <h3 className="text-xl font-serif font-light text-primary tracking-wide mb-2 group-hover:tracking-wider transition-all duration-300">
+          {category.name}
+        </h3>
+
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+          {category.description}
+        </p>
+
+        <span className="inline-block text-xs uppercase tracking-[0.18em] border-b border-primary/40 pb-1 text-primary/80 group-hover:border-primary group-hover:text-primary transition-all duration-300">
+          View Category
+        </span>
+      </div>
+    </Link>
+  ))}
+</div>
+
           </div>
         </section>
       )}
