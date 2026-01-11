@@ -143,10 +143,11 @@ const Index = () => {
                 >
                   {category.image && (
                     <img
-                      src={category.image}
-                      alt={category.name}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
+  src={category.image}
+  alt={category.name}
+className="absolute inset-0 w-full h-full object-cover object-center"
+/>
+
                   )}
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-300" />
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">

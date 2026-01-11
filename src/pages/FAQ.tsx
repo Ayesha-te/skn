@@ -38,7 +38,7 @@ const faqCategories = [
       },
       {
         q: "Is shipping free?",
-        a: "We offer free standard shipping on all orders over $200. Orders under $200 have a flat shipping rate of $15.",
+        a: "We offer free standard shipping on all orders over €200. Orders under €200 have a flat shipping rate of €15.",
       },
       {
         q: "Can I track my order?",

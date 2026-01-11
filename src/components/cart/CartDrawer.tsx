@@ -74,7 +74,7 @@ export const CartDrawer = () => {
                           {item.product.name}
                         </h3>
                         <p className="text-sm text-muted-foreground mt-0.5">
-                          ${item.product.price}
+                          €{item.product.price}
                         </p>
 
                         <div className="flex items-center justify-between mt-3">
@@ -117,7 +117,7 @@ export const CartDrawer = () => {
             <div className="border-t border-border px-6 py-4 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm">Subtotal</span>
-                <span className="text-lg font-medium">${totalPrice.toFixed(2)}</span>
+                <span className="text-lg font-medium">€{totalPrice.toFixed(2)}</span>
               </div>
               <p className="text-xs text-muted-foreground">
                 Shipping & taxes calculated at checkout

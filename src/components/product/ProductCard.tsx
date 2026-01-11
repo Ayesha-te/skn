@@ -12,14 +12,15 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   return (
     <div className="group">
       <Link to={`/product/${product.id}`} className="block">
-        <div className="aspect-square bg-secondary overflow-hidden mb-4">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        </div>
-      </Link>
+  <div className="aspect-square bg-secondary overflow-hidden mb-4 flex items-center justify-center">
+    <img
+      src={product.image}
+      alt={product.name}
+      className="w-full h-full object-contain transition-transform duration-500"
+    />
+  </div>
+</Link>
+
       
       <div className="space-y-2">
         <Link to={`/product/${product.id}`}>
@@ -30,7 +31,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         <p className="text-xs text-muted-foreground uppercase tracking-wider">
           {product.category}
         </p>
-        <p className="text-sm">${product.price}</p>
+        <p className="text-sm">€{product.price}</p>
         
         <button
           onClick={() => addToCart(product)}
