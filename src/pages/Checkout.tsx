@@ -263,7 +263,7 @@ const Checkout = () => {
                           </p>
                         </div>
                         <p className="text-sm">
-                          ${(item.product.price * item.quantity).toFixed(2)}
+                          €{(item.product.price * item.quantity).toFixed(2)}
                         </p>
                       </li>
                     ))}
@@ -272,7 +272,7 @@ const Checkout = () => {
                   <div className="border-t border-border mt-4 pt-4 space-y-3 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Subtotal</span>
-                      <span>${totalPrice.toFixed(2)}</span>
+                      <span>€{totalPrice.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Shipping</span>
@@ -287,7 +287,7 @@ const Checkout = () => {
                   <div className="border-t border-border mt-4 pt-4">
                     <div className="flex justify-between text-lg font-medium">
                       <span>Total</span>
-                      <span>${grandTotal.toFixed(2)}</span>
+                      <span>€{grandTotal.toFixed(2)}</span>
                     </div>
                   </div>
 
