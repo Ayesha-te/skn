@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 // ---------- PRICING TABLES (GBP) ----------
 
 // Approx GBP -> USD conversion (adjust if client wants a different rate)
-const GBP_TO_USD_RATE = 1.27;
+const GBP_TO_USD_RATE = 1.17;
 const gbpToUsd = (gbp: number) =>
   Math.round(gbp * GBP_TO_USD_RATE * 100) / 100;
 
