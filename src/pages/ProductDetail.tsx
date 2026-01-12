@@ -169,13 +169,22 @@ const ProductDetail = () => {
   let optionLabel = ""; // will be appended to name in cart
 
   if (productType === "extension") {
-    const table = HAIR_EXTENSION_PRICING_GBP[extGrams];
-    const gbp =
-      table?.[extColour]?.[extLengthBand] ?? basePriceGbp || 0;
+  const table = HAIR_EXTENSION_PRICING_GBP[extGrams];
 
-    finalPriceGbp = gbp;
-    optionLabel = `${extGrams}g / ${extColour.toLowerCase()} / ${extLengthBand}"`;
-  } else if (productType === "topper") {
+  let gbp = basePriceGbp || 0;
+
+  if (
+    table &&
+    table[extColour] &&
+    table[extColour][extLengthBand] != null
+  ) {
+    gbp = table[extColour][extLengthBand];
+  }
+
+  finalPriceGbp = gbp;
+  optionLabel = `${extGrams}g / ${extColour.toLowerCase()} / ${extLengthBand}"`;
+}
+ else if (productType === "topper") {
     const row = TOPPER_PRICING_GBP[topperIndex] ?? TOPPER_PRICING_GBP[0];
     finalPriceGbp = row.price;
     optionLabel = `${row.width}×${row.length}cm / ${row.density} / ${row.weight} / up to 18"`;
