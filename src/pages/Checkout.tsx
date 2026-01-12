@@ -19,9 +19,9 @@ const currencySymbols: Record<Currency, string> = {
 
 const exchangeRates: Record<Currency, number> = {
   USD: 1,
-  GBP: 0.79,
+  GBP: 0.74,
   AED: 3.67,
-  AUD: 1.52,
+  AUD: 1.49,
 };
 
 const Checkout = () => {
