@@ -92,10 +92,17 @@ const CLOSURE_6x6_GBP: { length: number; grams: number; price: number }[] = [
   { length: 20, grams: 92, price: 800 },
 ];
 
-// TODO: fill these from your other chart if you want 5x5 closures too.
 const CLOSURE_5x5_GBP: { length: number; grams: number; price: number }[] = [
-  // { length: 10, grams: 45, price: 420 },
-  // ...
+  { length: 10, grams: 45, price: 420 },
+  { length: 12, grams: 50, price: 450 },
+  { length: 14, grams: 57, price: 480 },
+  { length: 16, grams: 64, price: 590 },
+  { length: 18, grams: 70, price: 670 },
+  { length: 20, grams: 78, price: 730 },
+  // when client sends prices for 22/24/26, we can just add:
+  // { length: 22, grams: XX, price: YYYY },
+  // { length: 24, grams: XX, price: YYYY },
+  // { length: 26, grams: XX, price: YYYY },
 ];
 
 // Halo band – fixed prices (GBP) from your message
