@@ -301,6 +301,66 @@ const Index = () => {
           </div>
         </div>
       </section>
+      {/* Return Policy */}
+<section className="py-16 md:py-20 border-t border-border bg-secondary/40">
+  <div className="luxury-container max-w-3xl">
+    <p className="luxury-subheading mb-3">Returns</p>
+    <h2 className="text-2xl md:text-3xl luxury-heading mb-4">
+      Return Policy
+    </h2>
+    <p className="text-muted-foreground leading-relaxed">
+      Within 7 days of purchase, SKN Hair offers{" "}
+      <span className="font-medium text-foreground">store credit only</span>.
+      We do not offer refunds. Store credit can be used towards any future
+      purchase with SKN Hair.
+    </p>
+  </div>
+</section>
+
+{/* How to Care for Your Hair */}
+<section className="py-16 md:py-20 border-t border-border">
+  <div className="luxury-container max-w-3xl">
+    <p className="luxury-subheading mb-3">Hair Care</p>
+    <h2 className="text-2xl md:text-3xl luxury-heading mb-4">
+      How to Care for Your SKN Hair
+    </h2>
+    <p className="text-muted-foreground leading-relaxed mb-6">
+      To keep your SKN virgin hair looking its best and to maintain the
+      integrity of the hand-injected base, please follow these guidelines:
+    </p>
+
+    <ul className="space-y-3 text-sm md:text-base text-muted-foreground list-disc pl-5">
+      <li>
+        Use only <span className="font-medium text-foreground">SKN products</span> 
+        for cleansing and styling to preserve the quality and longevity of the hair.
+      </li>
+      <li>
+        Brush gently, starting from the ends and working your way up to avoid
+        hair breakage and tension on the base.
+      </li>
+      <li>
+        Wash only when needed. Avoid rubbing or twisting the hair or the base
+        while shampooing and conditioning.
+      </li>
+      <li>
+        Our hair can be blow-dried, but remember it is{" "}
+        <span className="font-medium text-foreground">hand injected</span>.
+        Avoid pulling too much when blow drying and use a low to medium heat
+        setting.
+      </li>
+      <li>
+        You can bleach the hair as it is virgin hair, but this{" "}
+        <span className="font-medium text-foreground">
+          must be done by a professional stylist only
+        </span>.
+        Please note: colour treatments are carried out at the customer’s own
+        risk. SKN Hair is not responsible for any damage resulting from colour
+        processing.
+      </li>
+    </ul>
+  </div>
+</section>
+
     </Layout>
   );
 };
