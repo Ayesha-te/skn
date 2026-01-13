@@ -7,15 +7,28 @@ import { useAdminData } from "@/contexts/AdminDataContext";
 import { useCart } from "@/contexts/CartContext";
 import { cn } from "@/lib/utils";
 
-// ---------- PRICING TABLES (GBP) ----------
+// ---------- CURRENCY HELPERS (GBP BASE) ----------
 
-// Approx GBP -> USD conversion (adjust if client wants a different rate)
-const GBP_TO_USD_RATE = 1.17;
+// You said: 1 GBP = 1.35 USD
+const GBP_TO_USD_RATE = 1.35;
+
+// Approx mid-market rates (can be adjusted later if needed)
+const GBP_TO_EUR_RATE = 1.15;
+const GBP_TO_AED_RATE = 4.95;
+
 const gbpToUsd = (gbp: number) =>
   Math.round(gbp * GBP_TO_USD_RATE * 100) / 100;
 
+const gbpToEur = (gbp: number) =>
+  Math.round(gbp * GBP_TO_EUR_RATE * 100) / 100;
+
+const gbpToAed = (gbp: number) =>
+  Math.round(gbp * GBP_TO_AED_RATE * 100) / 100;
+
+// ---------- PRICING TABLES (GBP) ----------
+
 // Hair extensions: price table from the client's sheet
-// Length keys: base=14–16, then 18–20, 22–24, 26–28, 30–32
+// Length keys: 14–16 (base), 18–20, 22–24, 26–28, 30–32
 const HAIR_EXTENSION_PRICING_GBP: Record<
   number,
   {
@@ -92,6 +105,7 @@ const CLOSURE_6x6_GBP: { length: number; grams: number; price: number }[] = [
   { length: 20, grams: 92, price: 800 },
 ];
 
+// Closures – 5x5 table (GBP)
 const CLOSURE_5x5_GBP: { length: number; grams: number; price: number }[] = [
   { length: 10, grams: 45, price: 420 },
   { length: 12, grams: 50, price: 450 },
@@ -99,28 +113,56 @@ const CLOSURE_5x5_GBP: { length: number; grams: number; price: number }[] = [
   { length: 16, grams: 64, price: 590 },
   { length: 18, grams: 70, price: 670 },
   { length: 20, grams: 78, price: 730 },
-  // when client sends prices for 22/24/26, we can just add:
-  // { length: 22, grams: XX, price: YYYY },
-  // { length: 24, grams: XX, price: YYYY },
-  // { length: 26, grams: XX, price: YYYY },
 ];
 
-// Halo band – fixed prices (GBP) from your message
+// Halo band – fixed prices (GBP)
 const HALO_BAND_PRICING_GBP: Record<string, number> = {
   '2"': 425,
   '3"': 489,
 };
 
+// NEW: HD wig with ear tabs / Italian lace wig (GBP)
+const HD_WIG_SIZES = ["X Small", "Small", "Medium"] as const;
+type HdWigSize = (typeof HD_WIG_SIZES)[number];
+
+const HD_WIG_LENGTHS = ["12-16", "18-20"] as const;
+type HdWigLength = (typeof HD_WIG_LENGTHS)[number];
+
+const HD_WIG_PRICING_GBP: Record<
+  HdWigLength,
+  Record<HdWigSize, number>
+> = {
+  "12-16": {
+    "X Small": 3400,
+    Small: 3500,
+    Medium: 3600,
+  },
+  "18-20": {
+    "X Small": 3600,
+    Small: 3700,
+    Medium: 3800,
+  },
+};
+
 // ---------- HELPERS ----------
 
-type ProductType = "extension" | "topper" | "closure" | "halo" | "simple";
+type ProductType =
+  | "extension"
+  | "topper"
+  | "closure"
+  | "halo"
+  | "hdWig"
+  | "simple";
 
 function detectProductType(name: string): ProductType {
   const n = name.toLowerCase();
+
   if (n.includes("extension")) return "extension";
   if (n.includes("topper") || n.includes("skn topper")) return "topper";
   if (n.includes("closure")) return "closure";
   if (n.includes("halo")) return "halo";
+  if (n.includes("hd wig") || n.includes("italian lace")) return "hdWig";
+
   return "simple";
 }
 
@@ -153,6 +195,10 @@ const ProductDetail = () => {
 
   const [haloBand, setHaloBand] = useState<'2"' | '3"'>('2"');
 
+  // HD wig options
+  const [hdWigLength, setHdWigLength] = useState<HdWigLength>("12-16");
+  const [hdWigSize, setHdWigSize] = useState<HdWigSize>("X Small");
+
   if (!product) {
     return (
       <Layout>
@@ -168,37 +214,30 @@ const ProductDetail = () => {
 
   const productType: ProductType = detectProductType(product.name || "");
 
-  // ---------- PRICE + LABEL CALCULATION ----------
+  // ---------- PRICE + LABEL CALCULATION (GBP BASE) ----------
 
   const basePriceGbp = Number(product.price || 0);
 
   let finalPriceGbp = basePriceGbp;
-  let optionLabel = ""; // will be appended to name in cart
+  let optionLabel = "";
 
   if (productType === "extension") {
-  const table = HAIR_EXTENSION_PRICING_GBP[extGrams];
+    const table = HAIR_EXTENSION_PRICING_GBP[extGrams];
+    let gbp = basePriceGbp || 0;
 
-  let gbp = basePriceGbp || 0;
+    if (table && table[extColour] && table[extColour][extLengthBand] != null) {
+      gbp = table[extColour][extLengthBand];
+    }
 
-  if (
-    table &&
-    table[extColour] &&
-    table[extColour][extLengthBand] != null
-  ) {
-    gbp = table[extColour][extLengthBand];
-  }
-
-  finalPriceGbp = gbp;
-  optionLabel = `${extGrams}g / ${extColour.toLowerCase()} / ${extLengthBand}"`;
-}
- else if (productType === "topper") {
+    finalPriceGbp = gbp;
+    optionLabel = `${extGrams}g / ${extColour.toLowerCase()} / ${extLengthBand}"`;
+  } else if (productType === "topper") {
     const row = TOPPER_PRICING_GBP[topperIndex] ?? TOPPER_PRICING_GBP[0];
     finalPriceGbp = row.price;
     optionLabel = `${row.width}×${row.length}cm / ${row.density} / ${row.weight} / up to 18"`;
   } else if (productType === "closure") {
     const source = closureBase === "6x6" ? CLOSURE_6x6_GBP : CLOSURE_5x5_GBP;
-    const row =
-      source.find((r) => r.length === closureLength) ?? source[0];
+    const row = source.find((r) => r.length === closureLength) ?? source[0];
     if (row) {
       finalPriceGbp = row.price;
       optionLabel = `${closureBase} / ${row.length}" / ${row.grams}g`;
@@ -207,13 +246,21 @@ const ProductDetail = () => {
     const gbp = HALO_BAND_PRICING_GBP[haloBand] ?? basePriceGbp;
     finalPriceGbp = gbp;
     optionLabel = `${haloBand} hairline halo band`;
+  } else if (productType === "hdWig") {
+    const lengthPricing = HD_WIG_PRICING_GBP[hdWigLength];
+    const gbp =
+      (lengthPricing && lengthPricing[hdWigSize]) || basePriceGbp || 0;
+    finalPriceGbp = gbp;
+    optionLabel = `${hdWigLength}" / ${hdWigSize} · HD Wig with ear tabs & Italian lace`;
   } else {
-    // simple product – still convert to USD
     finalPriceGbp = basePriceGbp;
     optionLabel = "";
   }
 
+  // conversions
   const finalPriceUsd = gbpToUsd(finalPriceGbp);
+  const finalPriceEur = gbpToEur(finalPriceGbp);
+  const finalPriceAed = gbpToAed(finalPriceGbp);
 
   const relatedProducts = useMemo(() => {
     return products
@@ -230,7 +277,8 @@ const ProductDetail = () => {
     const productForCart = {
       ...product,
       name: nameWithOptions,
-      price: finalPriceUsd.toFixed(2), // cart + checkout see USD
+      // cart/checkout works in USD – backend stays the same
+      price: finalPriceUsd.toFixed(2),
     };
 
     addToCart(productForCart, quantity);
@@ -371,9 +419,7 @@ const ProductDetail = () => {
               <button
                 key={b}
                 type="button"
-                onClick={() =>
-                  setClosureBase(b as "6x6" | "5x5")
-                }
+                onClick={() => setClosureBase(b as "6x6" | "5x5")}
                 className={cn(
                   "px-3 py-2 text-xs border rounded-full",
                   closureBase === b
@@ -405,11 +451,6 @@ const ProductDetail = () => {
                 {row.length}" – {row.grams}g
               </button>
             ))}
-            {source.length === 0 && (
-              <span className="text-xs text-muted-foreground">
-                TODO: add 5×5 pricing.
-              </span>
-            )}
           </div>
         </div>
       </div>
@@ -438,7 +479,58 @@ const ProductDetail = () => {
           ))}
         </div>
       </div>
-      {/* you can add length / colour selector here later if needed */}
+    </div>
+  );
+
+  const renderHdWigOptions = () => (
+    <div className="space-y-6 mb-8">
+      {/* Length */}
+      <div>
+        <p className="text-sm font-medium mb-2">Length</p>
+        <div className="flex gap-2">
+          {HD_WIG_LENGTHS.map((len) => (
+            <button
+              key={len}
+              type="button"
+              onClick={() => setHdWigLength(len)}
+              className={cn(
+                "px-3 py-2 text-xs border rounded-full",
+                hdWigLength === len
+                  ? "bg-foreground text-background"
+                  : "bg-transparent hover:bg-secondary"
+              )}
+            >
+              {len}"
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Size */}
+      <div>
+        <p className="text-sm font-medium mb-2">Cap Size</p>
+        <div className="flex flex-wrap gap-2">
+          {HD_WIG_SIZES.map((size) => (
+            <button
+              key={size}
+              type="button"
+              onClick={() => setHdWigSize(size)}
+              className={cn(
+                "px-3 py-2 text-xs border rounded-full",
+                hdWigSize === size
+                  ? "bg-foreground text-background"
+                  : "bg-transparent hover:bg-secondary"
+              )}
+            >
+              {size}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        HD wig with ear tabs and HD Italian lace wig. All prices shown in GBP.
+      </p>
     </div>
   );
 
@@ -452,10 +544,7 @@ const ProductDetail = () => {
           <nav className="mb-8">
             <ol className="flex items-center gap-2 text-sm text-muted-foreground">
               <li>
-                <Link
-                  to="/"
-                  className="hover:text-foreground transition-colors"
-                >
+                <Link to="/" className="hover:text-foreground transition-colors">
                   Home
                 </Link>
               </li>
@@ -563,8 +652,18 @@ const ProductDetail = () => {
                 </p>
               )}
 
-              <p className="text-2xl mb-6">
-                ${finalPriceUsd.toFixed(2)}
+              {/* MAIN PRICE (GBP) + CONVERSIONS */}
+              <p className="text-2xl mb-1">
+                £
+                {finalPriceGbp.toLocaleString("en-GB", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </p>
+              <p className="text-xs text-muted-foreground mb-6">
+                Approx: ${finalPriceUsd.toFixed(2)} / €
+                {finalPriceEur.toFixed(2)} / د.إ
+                {finalPriceAed.toFixed(2)}
               </p>
 
               <p className="text-muted-foreground leading-relaxed mb-6">
@@ -576,14 +675,13 @@ const ProductDetail = () => {
               {productType === "topper" && renderTopperOptions()}
               {productType === "closure" && renderClosureOptions()}
               {productType === "halo" && renderHaloOptions()}
+              {productType === "hdWig" && renderHdWigOptions()}
 
               {/* Quantity & Add to Cart */}
               <div className="flex gap-4 mb-8">
                 <div className="flex items-center border border-border">
                   <button
-                    onClick={() =>
-                      setQuantity((q) => Math.max(1, q - 1))
-                    }
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                     className="p-3 hover:bg-secondary transition-colors"
                     type="button"
                   >
