@@ -91,6 +91,7 @@ const Checkout = () => {
             items: items.map((item) => ({
               product: { id: item.product.id },
               quantity: item.quantity,
+              unit_price: item.product.price,
             })),
             shipping_cost: shippingCostUSD,
             currency, // ✅ SEND CURRENCY
