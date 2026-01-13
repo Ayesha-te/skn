@@ -31,7 +31,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         <p className="text-xs text-muted-foreground uppercase tracking-wider">
           {product.category}
         </p>
-        <p className="text-sm">${product.price}</p>
+        <p className="text-sm">£{product.price}</p>
         
         <button
           onClick={() => addToCart(product)}
