@@ -571,7 +571,7 @@ const ProductDetail = () => {
                   <video
                     src={product.video}
                     controls
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 ) : (
                   <img
@@ -581,7 +581,7 @@ const ProductDetail = () => {
                         : product.images[activeImage]?.image || product.image
                     }
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 )}
               </div>
