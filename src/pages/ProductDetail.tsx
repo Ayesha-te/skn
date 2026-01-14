@@ -300,7 +300,7 @@ const ProductDetail = () => {
       id: "care",
       title: "Care Instructions",
       content:
-        "Handle with care. Wash with sulfate-free shampoo. Use lukewarm water. Air dry when possible. Store on a wig stand when not in use.",
+        "Care instructions. Use only skn shampoo and conditioner. As they have been tested against the base of the system to ensure longevity. This is protocol for our hair products",
     },
   ];
 
