@@ -90,7 +90,7 @@ const ShippingPolicy = () => {
                 </h2>
                 <p className="leading-relaxed">
                   If your package is lost or arrives damaged, please contact us immediately 
-                  at hello@sknhaircare.com. We will work with the carrier to resolve the 
+                  at helpdesk@sknhaircare.com. We will work with the carrier to resolve the 
                   issue and ensure you receive your order.
                 </p>
               </section>

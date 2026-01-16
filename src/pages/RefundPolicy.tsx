@@ -57,7 +57,7 @@ const RefundPolicy = () => {
                   How to Initiate a Return
                 </h2>
                 <ol className="list-decimal pl-5 space-y-2">
-                  <li>Contact us at hello@sknhaircare.com with your order number</li>
+                  <li>Contact us at helpdesk@sknhaircare.com with your order number</li>
                   <li>Receive your Return Authorization (RA) number</li>
                   <li>Pack items securely in original packaging</li>
                   <li>Include the RA number on the outside of the package</li>

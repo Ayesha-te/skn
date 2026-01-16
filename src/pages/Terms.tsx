@@ -120,7 +120,7 @@ const Terms = () => {
                 </h2>
                 <p className="leading-relaxed">
                   Questions about the Terms of Service should be sent to us at 
-                  hello@sknhaircare.com.
+                  helpdesk@sknhaircare.com.
                 </p>
               </section>
             </div>

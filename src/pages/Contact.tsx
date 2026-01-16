@@ -53,10 +53,10 @@ const Contact = () => {
                     Email
                   </h3>
                   <a
-                    href="mailto:hello@sknhaircare.com"
+                    href="mailto:helpdesk@sknhaircare.com"
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    hello@sknhaircare.com
+                    helpdesk@sknhaircare.com
                   </a>
                 </div>
 

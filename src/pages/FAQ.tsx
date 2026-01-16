@@ -55,7 +55,7 @@ const faqCategories = [
       },
       {
         q: "How do I initiate a return?",
-        a: "Contact our customer service team at hello@sknhaircare.com with your order number. We'll provide a return authorization and shipping instructions.",
+        a: "Contact our customer service team at helpdesk@sknhaircare.com with your order number. We'll provide a return authorization and shipping instructions.",
       },
       {
         q: "When will I receive my refund?",

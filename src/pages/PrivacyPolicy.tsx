@@ -80,7 +80,7 @@ const PrivacyPolicy = () => {
                 <p className="leading-relaxed">
                   For more information about our privacy practices, if you have questions, 
                   or if you would like to make a complaint, please contact us by email at 
-                  hello@sknhaircare.com.
+                  helpdesk@sknhaircare.com.
                 </p>
               </section>
             </div>
