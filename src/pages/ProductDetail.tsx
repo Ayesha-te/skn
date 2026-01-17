@@ -154,14 +154,25 @@ type ProductType =
   | "hdWig"
   | "simple";
 
-function detectProductType(name: string): ProductType {
-  const n = name.toLowerCase();
+type ProductBasics = {
+  name?: string | null;
+  category?: string | null;
+  category_name?: string | null;
+};
 
-  if (n.includes("extension")) return "extension";
-  if (n.includes("topper") || n.includes("skn topper")) return "topper";
-  if (n.includes("closure")) return "closure";
-  if (n.includes("halo")) return "halo";
-  if (n.includes("hd wig") || n.includes("italian lace")) return "hdWig";
+function detectProductType(product: ProductBasics): ProductType {
+  const text = `${product.name ?? ""} ${product.category ?? ""} ${
+    product.category_name ?? ""
+  }`.toLowerCase();
+
+  // Clips for toppers should behave like simple accessories (no topper options)
+  if (text.includes("clip") && text.includes("topper")) return "simple";
+
+  if (text.includes("extension")) return "extension";
+  if (text.includes("topper") || text.includes("skn topper")) return "topper";
+  if (text.includes("closure")) return "closure";
+  if (text.includes("halo")) return "halo";
+  if (text.includes("hd wig") || text.includes("italian lace")) return "hdWig";
 
   return "simple";
 }
@@ -212,7 +223,7 @@ const ProductDetail = () => {
     );
   }
 
-  const productType: ProductType = detectProductType(product.name || "");
+  const productType: ProductType = detectProductType(product);
 
   // ---------- PRICE + LABEL CALCULATION (GBP BASE) ----------
 
