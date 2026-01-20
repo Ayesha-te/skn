@@ -115,6 +115,9 @@ const CLOSURE_5x5_GBP: { length: number; grams: number; price: number }[] = [
   { length: 20, grams: 78, price: 730 },
 ];
 
+const CLOSURE_HAIRLINES = ["Pre plucked hairline", "Full hairline"] as const;
+type ClosureHairline = (typeof CLOSURE_HAIRLINES)[number];
+
 // Halo band – fixed prices (GBP)
 const HALO_BAND_PRICING_GBP: Record<string, number> = {
   '2"': 425,
@@ -217,6 +220,9 @@ const ProductDetail = () => {
 
   const [closureBase, setClosureBase] = useState<"6x6" | "5x5">("6x6");
   const [closureLength, setClosureLength] = useState<number>(10);
+  const [closureHairline, setClosureHairline] = useState<ClosureHairline>(
+    "Pre plucked hairline"
+  );
 
   const [haloBand, setHaloBand] = useState<'2"' | '3"'>('2"');
 
@@ -273,7 +279,7 @@ const ProductDetail = () => {
     const row = source.find((r) => r.length === closureLength) ?? source[0];
     if (row) {
       finalPriceGbp = row.price;
-      optionLabel = `${closureBase} / ${row.length}" / ${row.grams}g`;
+      optionLabel = `${closureBase} / ${row.length}" / ${row.grams}g / ${closureHairline}`;
     }
   } else if (productType === "halo") {
     const gbp = HALO_BAND_PRICING_GBP[haloBand] ?? basePriceGbp;
@@ -464,6 +470,30 @@ const ProductDetail = () => {
               </button>
             ))}
           </div>
+        </div>
+
+        <div>
+          <p className="text-sm font-medium mb-2">Hairline</p>
+          <div className="flex flex-wrap gap-2">
+            {CLOSURE_HAIRLINES.map((line) => (
+              <button
+                key={line}
+                type="button"
+                onClick={() => setClosureHairline(line)}
+                className={cn(
+                  "px-3 py-2 text-xs border rounded-full",
+                  closureHairline === line
+                    ? "bg-foreground text-background"
+                    : "bg-transparent hover:bg-secondary"
+                )}
+              >
+                {line}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Refer to photograph for full vs pre-plucked hairline examples.
+          </p>
         </div>
 
         <div>
