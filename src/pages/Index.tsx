@@ -24,33 +24,6 @@ const Index = () => {
     href: `/shop?category=${encodeURIComponent(c.name)}`,
   }));
 
-  const detectProductType = (product: { name?: string | null; category?: string | null; category_name?: string | null }) => {
-    const text = `${product.name ?? ""} ${product.category ?? ""} ${product.category_name ?? ""}`.toLowerCase();
-    if (text.includes("topper") || text.includes("skn topper")) return "topper";
-    if (text.includes("closure")) return "closure";
-    if (text.includes("halo")) return "halo";
-    if (text.includes("hd wig") || text.includes("italian lace")) return "hdWig";
-    return "other";
-  };
-
-  const priorityOrder: Record<string, number> = {
-    topper: 0,
-    closure: 1,
-    halo: 2,
-    hdWig: 3,
-  };
-
-  const sortByPriority = (list: typeof products) => {
-    return [...list].sort((a, b) => {
-      const aType = detectProductType(a);
-      const bType = detectProductType(b);
-      const aPriority = priorityOrder[aType] ?? 99;
-      const bPriority = priorityOrder[bType] ?? 99;
-      if (aPriority !== bPriority) return aPriority - bPriority;
-      return 0;
-    });
-  };
-
   return (
     <Layout>
       {/* Hero Section */}
@@ -218,7 +191,9 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-            {(featuredProducts.length > 0 ? sortByPriority(featuredProducts) : sortByPriority(newArrivals)).map((product) => (
+            {featuredProducts.length > 0 ? featuredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            )) : newArrivals.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
