@@ -48,19 +48,18 @@ const Index = () => {
   {/* Dark overlay */}
   <div className="absolute inset-0 bg-black/55"></div>
 
-  <div className="luxury-container relative z-10">
+    <div className="luxury-container relative z-10">
     <div className="max-w-2xl animate-fade-in-up text-white">
       <p className="luxury-subheading mb-4 text-white/80">
         The World's First
       </p>
 
       <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light leading-tight mb-6 text-white">
-        100% Virgin Unprocessed Human Hair Toppers
+        Virgin Hair Toppers, Closures, Hairline Halos & HD Wigs
       </h1>
 
       <p className="text-white/85 text-lg mb-8 leading-relaxed">
-        Experience the luxury of natural beauty with our premium virgin hair collection.
-        Ethically sourced, expertly crafted, beautifully yours.
+        All handmade using the world's highest-quality human hair with the cuticle still intact, ethically sourced and crafted to perfection.
       </p>
 
       <div className="flex flex-col sm:flex-row gap-4">

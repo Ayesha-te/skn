@@ -663,6 +663,10 @@ const ProductDetail = () => {
                 </p>
               )}
 
+              <div className="mb-6 rounded-md border border-border bg-secondary/60 px-4 py-3 text-xs font-semibold tracking-[0.12em] uppercase text-foreground">
+                Custom orders please email helpdesk@sknhaircare.com. Custom orders take around 5 weeks.
+              </div>
+
               {/* MAIN PRICE (GBP) + CONVERSIONS */}
               <p className="text-2xl mb-1">
                 £
