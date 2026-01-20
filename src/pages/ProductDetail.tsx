@@ -128,6 +128,20 @@ type HdWigSize = (typeof HD_WIG_SIZES)[number];
 const HD_WIG_LENGTHS = ["12-16", "18-20"] as const;
 type HdWigLength = (typeof HD_WIG_LENGTHS)[number];
 
+const HD_WIG_COLORS = [
+  "1 Darkest Black",
+  "2 Black",
+  "3 Darkest Brown",
+  "4 Dark Brown",
+  "5 Medium Brown",
+  "6 Medium Light Brown",
+  "7 Lightest Brown",
+  "8 Dark Blonde",
+  "9 Medium Blonde",
+  "10 Lightest Blonde",
+] as const;
+type HdWigColor = (typeof HD_WIG_COLORS)[number];
+
 const HD_WIG_PRICING_GBP: Record<
   HdWigLength,
   Record<HdWigSize, number>
@@ -209,6 +223,7 @@ const ProductDetail = () => {
   // HD wig options
   const [hdWigLength, setHdWigLength] = useState<HdWigLength>("12-16");
   const [hdWigSize, setHdWigSize] = useState<HdWigSize>("X Small");
+  const [hdWigColor, setHdWigColor] = useState<HdWigColor>(HD_WIG_COLORS[0]);
 
   if (!product) {
     return (
@@ -262,7 +277,7 @@ const ProductDetail = () => {
     const gbp =
       (lengthPricing && lengthPricing[hdWigSize]) || basePriceGbp || 0;
     finalPriceGbp = gbp;
-    optionLabel = `${hdWigLength}" / ${hdWigSize} · HD Wig with ear tabs & Italian lace`;
+    optionLabel = `${hdWigLength}" / ${hdWigSize} / ${hdWigColor} HD Wig with ear tabs & Italian lace`;
   } else {
     finalPriceGbp = basePriceGbp;
     optionLabel = "";
@@ -534,6 +549,28 @@ const ProductDetail = () => {
               )}
             >
               {size}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Color */}
+      <div>
+        <p className="text-sm font-medium mb-2">Color</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {HD_WIG_COLORS.map((color) => (
+            <button
+              key={color}
+              type="button"
+              onClick={() => setHdWigColor(color)}
+              className={cn(
+                "px-3 py-2 text-xs border rounded-md text-left",
+                hdWigColor === color
+                  ? "bg-foreground text-background"
+                  : "bg-transparent hover:bg-secondary"
+              )}
+            >
+              {color}
             </button>
           ))}
         </div>
