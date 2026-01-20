@@ -183,28 +183,25 @@ const Index = () => {
       )}
 
       {/* Featured Products */}
-      <section className="py-20 md:py-28 bg-secondary">
-        <div className="luxury-container">
-          <div className="text-center mb-12">
-            <p className="luxury-subheading mb-3">Featured</p>
-            <h2 className="text-3xl md:text-4xl luxury-heading">Curated Selection</h2>
-          </div>
+       <section className="py-20 md:py-28 bg-secondary">
+          <div className="luxury-container">
+            <div className="text-center mb-12">
+              <p className="luxury-subheading mb-3">Customer Favorites</p>
+              <h2 className="text-3xl md:text-4xl luxury-heading">Our Bestsellers SKN Products</h2>
+            </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-            {featuredProducts.length > 0 ? featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            )) : newArrivals.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+              {bestsellers.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+             <div className="text-center mt-12">
             <Link to="/shop" className="luxury-button-outline">
               View All Products
             </Link>
           </div>
-        </div>
-      </section>
+          </div>
+        </section>
 
       {/* Brand Story */}
       <section className="py-20 md:py-28">
