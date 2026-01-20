@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "@/images/SKN transparent-03.png"
+import logo from "@/images/SKN transparent-03.png";
 
 const footerLinks = {
   shop: [
@@ -29,9 +29,14 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
-            <img src={logo} alt="SKN Hair Elegance" className=" rounded-2xl h-[5rem]  mb-4"  />
+            <img
+              src={logo}
+              alt="SKN Hair Elegance"
+              className="rounded-2xl h-[5rem] mb-4"
+            />
             <p className="text-sm text-muted-foreground leading-relaxed">
-              The world's first 100% virgin unprocessed human hair toppers and premium hair care products.
+              The world's first 100% virgin unprocessed human hair toppers and
+              premium hair care products.
             </p>
           </div>
 
@@ -95,9 +100,19 @@ export const Footer = () => {
 
         {/* Bottom */}
         <div className="mt-16 pt-8 border-t border-border">
-          <p className="text-xs text-muted-foreground text-center">
-            © {new Date().getFullYear()} SKN Hair Care. All rights reserved.
-          </p>
+          <div className="flex flex-col items-center gap-3 text-center">
+            <a
+              href="https://www.instagram.com/skn_haircare?igsh=Nm4wdmpjMXVpYmR5&utm_source=qr"
+              target="_blank"
+              rel="noreferrer"
+              className="luxury-link text-sm"
+            >
+              Follow us on Instagram @skn_haircare
+            </a>
+            <p className="text-xs text-muted-foreground">
+              Ac {new Date().getFullYear()} SKN Hair Care. All rights reserved.
+            </p>
+          </div>
         </div>
       </div>
     </footer>

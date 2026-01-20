@@ -722,6 +722,17 @@ const ProductDetail = () => {
                 {product.description}
               </p>
 
+              <div className="mb-6">
+                <a
+                  href="https://www.instagram.com/skn_haircare?igsh=Nm4wdmpjMXVpYmR5&utm_source=qr"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="luxury-link text-sm"
+                >
+                  Follow us on Instagram @skn_haircare
+                </a>
+              </div>
+
               {/* Dynamic option blocks */}
               {productType === "extension" && renderExtensionOptions()}
               {productType === "topper" && renderTopperOptions()}
