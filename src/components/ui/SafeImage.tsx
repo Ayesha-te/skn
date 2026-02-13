@@ -2,13 +2,18 @@ import { ImgHTMLAttributes, ReactNode, useState } from "react";
 
 interface SafeImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallback?: ReactNode;
+  onImageError?: () => void;
 }
 
 /**
  * Renders an image and hides/replaces it if loading fails (e.g. Supabase 404).
- * Prevents broken-image icons from showing in the UI.
+ * Prevents broken-image icons from showing in the UI and allows parent to react.
  */
-export function SafeImage({ fallback = null, ...props }: SafeImageProps) {
+export function SafeImage({
+  fallback = null,
+  onImageError,
+  ...props
+}: SafeImageProps) {
   const [hasError, setHasError] = useState(false);
 
   if (!props.src || hasError) {
@@ -18,8 +23,13 @@ export function SafeImage({ fallback = null, ...props }: SafeImageProps) {
   return (
     <img
       {...props}
-      onError={() => setHasError(true)}
       loading="lazy"
+      onError={(e) => {
+        setHasError(true);
+        onImageError?.();
+        // Preserve any caller-provided onError handler
+        props.onError?.(e);
+      }}
     />
   );
 }

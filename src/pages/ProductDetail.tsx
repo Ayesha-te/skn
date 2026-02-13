@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { useAdminData } from "@/contexts/AdminDataContext";
 import { useCart } from "@/contexts/CartContext";
 import { cn } from "@/lib/utils";
+import { SafeImage } from "@/components/ui/SafeImage";
 
 // ---------- CURRENCY HELPERS (GBP BASE) ----------
 
@@ -659,7 +660,7 @@ const ProductDetail = () => {
                     className="w-full h-full object-contain"
                   />
                 ) : (
-                  <img
+                  <SafeImage
                     src={
                       activeImage === -2
                         ? product.image
@@ -667,6 +668,11 @@ const ProductDetail = () => {
                     }
                     alt={product.name}
                     className="w-full h-full object-contain"
+                    fallback={
+                      <div className="w-full h-full flex items-center justify-center text-xs uppercase tracking-[0.15em] text-muted-foreground bg-muted/20">
+                        Image unavailable
+                      </div>
+                    }
                   />
                 )}
               </div>
@@ -680,13 +686,20 @@ const ProductDetail = () => {
                       : "opacity-50 hover:opacity-75"
                   )}
                 >
-                  <img
+                  <SafeImage
                     src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover"
+                    fallback={
+                      <div className="w-full h-full flex items-center justify-center text-[10px] uppercase tracking-[0.15em] text-muted-foreground bg-muted/10">
+                        Image
+                      </div>
+                    }
                   />
                 </button>
-                {product.images.map((imgObj, index) => (
+                {product.images
+                  .filter((imgObj) => imgObj?.image)
+                  .map((imgObj, index) => (
                   <button
                     key={imgObj.id}
                     onClick={() => setActiveImage(index)}
@@ -697,10 +710,15 @@ const ProductDetail = () => {
                         : "opacity-50 hover:opacity-75"
                     )}
                   >
-                    <img
+                    <SafeImage
                       src={imgObj.image}
                       alt={`${product.name} ${index + 1}`}
                       className="w-full h-full object-cover"
+                      fallback={
+                        <div className="w-full h-full flex items-center justify-center text-[10px] uppercase tracking-[0.15em] text-muted-foreground bg-muted/10">
+                          Missing
+                        </div>
+                      }
                     />
                   </button>
                 ))}

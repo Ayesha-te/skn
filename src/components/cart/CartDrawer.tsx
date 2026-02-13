@@ -2,6 +2,7 @@ import { X, Minus, Plus, ShoppingBag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { cn } from "@/lib/utils";
+import { SafeImage } from "@/components/ui/SafeImage";
 
 export const CartDrawer = () => {
   const {
@@ -63,10 +64,15 @@ export const CartDrawer = () => {
                   <li key={item.product.id} className="px-6 py-4">
                     <div className="flex gap-4">
                       <div className="w-20 h-20 bg-secondary flex-shrink-0">
-                        <img
+                        <SafeImage
                           src={item.product.image}
                           alt={item.product.name}
                           className="w-full h-full object-cover"
+                          fallback={
+                            <div className="w-full h-full flex items-center justify-center text-[10px] uppercase tracking-[0.15em] text-muted-foreground bg-muted/10">
+                              Image
+                            </div>
+                          }
                         />
                       </div>
                       <div className="flex-1 min-w-0">

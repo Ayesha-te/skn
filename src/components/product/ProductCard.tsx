@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { SafeImage } from "@/components/ui/SafeImage";
+import { useState } from "react";
 
 interface ProductCardProps {
   product: Product;
@@ -9,6 +10,9 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const [hidden, setHidden] = useState(false);
+
+  if (hidden || !product.image) return null;
 
   return (
     <div className="group">
@@ -18,11 +22,8 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       src={product.image}
       alt={product.name}
       className="w-full h-full object-contain transition-transform duration-500"
-      fallback={
-        <div className="w-full h-full bg-muted/30 text-muted-foreground flex items-center justify-center text-xs uppercase tracking-wide">
-          Image unavailable
-        </div>
-      }
+      fallback={null}
+      onImageError={() => setHidden(true)}
     />
   </div>
 </Link>

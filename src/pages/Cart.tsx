@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { useCart } from "@/contexts/CartContext";
+import { SafeImage } from "@/components/ui/SafeImage";
 
 const Cart = () => {
   const { items, updateQuantity, removeFromCart, totalPrice } = useCart();
@@ -47,10 +48,15 @@ const Cart = () => {
                       to={`/product/${item.product.id}`}
                       className="w-24 h-24 md:w-32 md:h-32 bg-secondary flex-shrink-0"
                     >
-                      <img
+                      <SafeImage
                         src={item.product.image}
                         alt={item.product.name}
                         className="w-full h-full object-cover"
+                        fallback={
+                          <div className="w-full h-full flex items-center justify-center text-[10px] uppercase tracking-[0.15em] text-muted-foreground bg-muted/10">
+                            Image
+                          </div>
+                        }
                       />
                     </Link>
 
