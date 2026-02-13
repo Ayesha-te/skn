@@ -1,4 +1,4 @@
-import { ImgHTMLAttributes, ReactNode, useState } from "react";
+import { ImgHTMLAttributes, ReactNode, useEffect, useState } from "react";
 
 interface SafeImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallback?: ReactNode;
@@ -15,6 +15,11 @@ export function SafeImage({
   ...props
 }: SafeImageProps) {
   const [hasError, setHasError] = useState(false);
+
+  // reset error state when the source changes
+  useEffect(() => {
+    setHasError(false);
+  }, [props.src]);
 
   if (!props.src || hasError) {
     return <>{fallback}</>;

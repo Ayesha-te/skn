@@ -205,12 +205,11 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
 
   const [quantity, setQuantity] = useState(1);
-  const [activeImage, setActiveImage] = useState(-2);
+  const [activeImage, setActiveImage] = useState<number | -1 | -99>(-2); // -2 main, -1 video, -99 none
   const [hideMain, setHideMain] = useState(false);
-  const [openAccordion, setOpenAccordion] = useState<string | null>(
-    "description"
-  );
+  const [openAccordion, setOpenAccordion] = useState<string | null>("description");
   const [hiddenThumbs, setHiddenThumbs] = useState<Set<string | number>>(new Set());
+  const [failedMain, setFailedMain] = useState(false);
 
   // option state
   const [extGrams, setExtGrams] = useState<75 | 100 | 150>(100);
@@ -318,15 +317,38 @@ const ProductDetail = () => {
     () => galleryImages.filter((img) => !hiddenThumbs.has(img.id)),
     [galleryImages, hiddenThumbs]
   );
-  const hasPrimary = !!product.image;
+  const hasPrimary = !!product.image && !failedMain;
   const hasVideo = !!product.video;
   const hasAnyMedia = hasPrimary || visibleGallery.length > 0 || hasVideo;
 
   useEffect(() => {
-    if (!hasPrimary && visibleGallery.length > 0 && activeImage === -2) {
-      setActiveImage(0);
+    if (hasPrimary) {
+      setActiveImage(-2);
+      setHideMain(false);
+      setFailedMain(false);
+      return;
     }
-  }, [hasPrimary, visibleGallery.length, activeImage]);
+    if (visibleGallery.length > 0) {
+      setActiveImage(0);
+      setHideMain(false);
+      return;
+    }
+    if (hasVideo) {
+      setActiveImage(-1);
+      setHideMain(false);
+      return;
+    }
+    setActiveImage(-99);
+  }, [hasPrimary, visibleGallery.length, hasVideo]);
+
+  useEffect(() => {
+    if (typeof activeImage === "number" && activeImage >= 0 && activeImage >= visibleGallery.length) {
+      if (visibleGallery.length > 0) setActiveImage(visibleGallery.length - 1);
+      else if (hasPrimary) setActiveImage(-2);
+      else if (hasVideo) setActiveImage(-1);
+      else setActiveImage(-99);
+    }
+  }, [visibleGallery.length, activeImage, hasPrimary, hasVideo]);
 
   const handleAddToCart = () => {
     const nameWithOptions =
@@ -673,7 +695,7 @@ const ProductDetail = () => {
             {/* Images & Video */}
             {hasAnyMedia && (
               <div className="space-y-4">
-                {!hideMain && (
+                {!hideMain && activeImage !== -99 && (
                   <div className="aspect-square bg-secondary overflow-hidden">
                     {activeImage === -1 && product.video ? (
                       <video
@@ -691,7 +713,17 @@ const ProductDetail = () => {
                         alt={product.name}
                         className="w-full h-full object-contain"
                         fallback={null}
-                        onImageError={() => setHideMain(true)}
+                        onImageError={() => {
+                          setFailedMain(true);
+                          if (visibleGallery.length > 0) {
+                            setActiveImage(0);
+                          } else if (hasVideo) {
+                            setActiveImage(-1);
+                          } else {
+                            setHideMain(true);
+                            setActiveImage(-99);
+                          }
+                        }}
                       />
                     )}
                   </div>
@@ -701,6 +733,7 @@ const ProductDetail = () => {
                     <button
                       onClick={() => {
                         setHideMain(false);
+                        setFailedMain(false);
                         setActiveImage(-2);
                       }}
                       className={cn(
@@ -715,7 +748,10 @@ const ProductDetail = () => {
                         alt={product.name}
                         className="w-full h-full object-cover"
                         fallback={null}
-                        onImageError={() => setHideMain(true)}
+                        onImageError={() => {
+                          setFailedMain(true);
+                          setHideMain(true);
+                        }}
                       />
                     </button>
                   )}
@@ -724,6 +760,7 @@ const ProductDetail = () => {
                       key={imgObj.id}
                       onClick={() => {
                         setHideMain(false);
+                        setFailedMain(false);
                         setActiveImage(index);
                       }}
                       className={cn(
