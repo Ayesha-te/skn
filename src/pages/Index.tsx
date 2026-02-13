@@ -4,6 +4,7 @@ import { Layout } from "@/components/layout/Layout";
 import hero from "@/images/1st.jpeg";
 import { useAdminData } from "@/contexts/AdminDataContext";
 import promiseImg from "@/images/2nd.jpeg";
+import { SafeImage } from "@/components/ui/SafeImage";
 
 
 const Index = () => {
@@ -102,10 +103,15 @@ const Index = () => {
       {/* Image */}
       <div className="aspect-[4/5] bg-secondary overflow-hidden">
         {collection.image && (
-          <img
+          <SafeImage
             src={collection.image}
             alt={collection.name}
             className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+            fallback={
+              <div className="w-full h-full bg-muted/20 text-muted-foreground flex items-center justify-center text-xs uppercase tracking-[0.15em]">
+                Image unavailable
+              </div>
+            }
           />
         )}
       </div>
@@ -152,10 +158,15 @@ const Index = () => {
       {/* Image */}
       <div className="aspect-[4/5] bg-secondary overflow-hidden">
         {category.image && (
-          <img
+          <SafeImage
             src={category.image}
             alt={category.name}
             className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+            fallback={
+              <div className="w-full h-full bg-muted/20 text-muted-foreground flex items-center justify-center text-xs uppercase tracking-[0.15em]">
+                Image unavailable
+              </div>
+            }
           />
         )}
       </div>

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
+import { SafeImage } from "@/components/ui/SafeImage";
 
 interface ProductCardProps {
   product: Product;
@@ -13,10 +14,15 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     <div className="group">
       <Link to={`/product/${product.id}`} className="block">
   <div className="aspect-square bg-secondary overflow-hidden mb-4 flex items-center justify-center">
-    <img
+    <SafeImage
       src={product.image}
       alt={product.name}
       className="w-full h-full object-contain transition-transform duration-500"
+      fallback={
+        <div className="w-full h-full bg-muted/30 text-muted-foreground flex items-center justify-center text-xs uppercase tracking-wide">
+          Image unavailable
+        </div>
+      }
     />
   </div>
 </Link>
