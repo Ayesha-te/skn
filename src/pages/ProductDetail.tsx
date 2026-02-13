@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Minus, Plus, ChevronDown } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
@@ -205,10 +205,12 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
 
   const [quantity, setQuantity] = useState(1);
-  const [activeImage, setActiveImage] = useState(0);
+  const [activeImage, setActiveImage] = useState(-2);
+  const [hideMain, setHideMain] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>(
     "description"
   );
+  const [hiddenThumbs, setHiddenThumbs] = useState<Set<string | number>>(new Set());
 
   // option state
   const [extGrams, setExtGrams] = useState<75 | 100 | 150>(100);
@@ -307,6 +309,24 @@ const ProductDetail = () => {
       .filter((p) => p.category === product?.category && p.id !== product?.id)
       .slice(0, 4);
   }, [products, product]);
+
+  const galleryImages = useMemo(
+    () => product.images.filter((img) => !!img?.image),
+    [product.images]
+  );
+  const visibleGallery = useMemo(
+    () => galleryImages.filter((img) => !hiddenThumbs.has(img.id)),
+    [galleryImages, hiddenThumbs]
+  );
+  const hasPrimary = !!product.image;
+  const hasVideo = !!product.video;
+  const hasAnyMedia = hasPrimary || visibleGallery.length > 0 || hasVideo;
+
+  useEffect(() => {
+    if (!hasPrimary && visibleGallery.length > 0 && activeImage === -2) {
+      setActiveImage(0);
+    }
+  }, [hasPrimary, visibleGallery.length, activeImage]);
 
   const handleAddToCart = () => {
     const nameWithOptions =
@@ -649,96 +669,106 @@ const ProductDetail = () => {
           </nav>
 
           {/* Product Section */}
-          <div className="grid md:grid-cols-2 gap-10 md:gap-16">
+          <div className={`grid gap-10 md:gap-16 ${hasAnyMedia ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
             {/* Images & Video */}
-            <div className="space-y-4">
-              <div className="aspect-square bg-secondary overflow-hidden">
-                {activeImage === -1 && product.video ? (
-                  <video
-                    src={product.video}
-                    controls
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <SafeImage
-                    src={
-                      activeImage === -2
-                        ? product.image
-                        : product.images[activeImage]?.image || product.image
-                    }
-                    alt={product.name}
-                    className="w-full h-full object-contain"
-                    fallback={
-                      <div className="w-full h-full flex items-center justify-center text-xs uppercase tracking-[0.15em] text-muted-foreground bg-muted/20">
-                        Image unavailable
-                      </div>
-                    }
-                  />
+            {hasAnyMedia && (
+              <div className="space-y-4">
+                {!hideMain && (
+                  <div className="aspect-square bg-secondary overflow-hidden">
+                    {activeImage === -1 && product.video ? (
+                      <video
+                        src={product.video}
+                        controls
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <SafeImage
+                        src={
+                          activeImage === -2
+                            ? product.image
+                            : visibleGallery[activeImage]?.image || product.image
+                        }
+                        alt={product.name}
+                        className="w-full h-full object-contain"
+                        fallback={null}
+                        onImageError={() => setHideMain(true)}
+                      />
+                    )}
+                  </div>
                 )}
-              </div>
-              <div className="flex flex-wrap gap-4">
-                <button
-                  onClick={() => setActiveImage(-2)}
-                  className={cn(
-                    "w-20 h-20 bg-secondary transition-opacity",
-                    activeImage === -2
-                      ? "opacity-100 ring-1 ring-foreground"
-                      : "opacity-50 hover:opacity-75"
+                <div className="flex flex-wrap gap-4">
+                  {hasPrimary && (
+                    <button
+                      onClick={() => {
+                        setHideMain(false);
+                        setActiveImage(-2);
+                      }}
+                      className={cn(
+                        "w-20 h-20 bg-secondary transition-opacity",
+                        activeImage === -2
+                          ? "opacity-100 ring-1 ring-foreground"
+                          : "opacity-50 hover:opacity-75"
+                      )}
+                    >
+                      <SafeImage
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        fallback={null}
+                        onImageError={() => setHideMain(true)}
+                      />
+                    </button>
                   )}
-                >
-                  <SafeImage
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                    fallback={
-                      <div className="w-full h-full flex items-center justify-center text-[10px] uppercase tracking-[0.15em] text-muted-foreground bg-muted/10">
-                        Image
+                  {visibleGallery.map((imgObj, index) => (
+                    <button
+                      key={imgObj.id}
+                      onClick={() => {
+                        setHideMain(false);
+                        setActiveImage(index);
+                      }}
+                      className={cn(
+                        "w-20 h-20 bg-secondary transition-opacity",
+                        activeImage === index
+                          ? "opacity-100 ring-1 ring-foreground"
+                          : "opacity-50 hover:opacity-75"
+                      )}
+                    >
+                      <SafeImage
+                        src={imgObj.image}
+                        alt={`${product.name} ${index + 1}`}
+                        className="w-full h-full object-cover"
+                        fallback={null}
+                        onImageError={() => {
+                          setHiddenThumbs((prev) => {
+                            const next = new Set(prev);
+                            next.add(imgObj.id);
+                            return next;
+                          });
+                        }}
+                      />
+                    </button>
+                  ))}
+                  {product.video && (
+                    <button
+                      onClick={() => {
+                        setHideMain(false);
+                        setActiveImage(-1);
+                      }}
+                      className={cn(
+                        "w-20 h-20 bg-secondary flex items-center justify-center transition-opacity",
+                        activeImage === -1
+                          ? "opacity-100 ring-1 ring-foreground"
+                          : "opacity-50 hover:opacity-75"
+                      )}
+                    >
+                      <div className="text-[10px] uppercase font-bold">
+                        Video
                       </div>
-                    }
-                  />
-                </button>
-                {product.images
-                  .filter((imgObj) => imgObj?.image)
-                  .map((imgObj, index) => (
-                  <button
-                    key={imgObj.id}
-                    onClick={() => setActiveImage(index)}
-                    className={cn(
-                      "w-20 h-20 bg-secondary transition-opacity",
-                      activeImage === index
-                        ? "opacity-100 ring-1 ring-foreground"
-                        : "opacity-50 hover:opacity-75"
-                    )}
-                  >
-                    <SafeImage
-                      src={imgObj.image}
-                      alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      fallback={
-                        <div className="w-full h-full flex items-center justify-center text-[10px] uppercase tracking-[0.15em] text-muted-foreground bg-muted/10">
-                          Missing
-                        </div>
-                      }
-                    />
-                  </button>
-                ))}
-                {product.video && (
-                  <button
-                    onClick={() => setActiveImage(-1)}
-                    className={cn(
-                      "w-20 h-20 bg-secondary flex items-center justify-center transition-opacity",
-                      activeImage === -1
-                        ? "opacity-100 ring-1 ring-foreground"
-                        : "opacity-50 hover:opacity-75"
-                    )}
-                  >
-                    <div className="text-[10px] uppercase font-bold">
-                      Video
-                    </div>
-                  </button>
-                )}
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Info */}
             <div>
