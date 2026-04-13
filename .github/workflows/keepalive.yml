@@ -1,0 +1,15 @@
+name: Keep Backend Alive
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping keep-alive endpoint
+        env:
+          KEEP_ALIVE_URL: https://sleepy-carrie-ayesha25-2b164d3d.koyeb.app/api/keep-alive/
+        run: curl --fail --silent --show-error --max-time 30 "$KEEP_ALIVE_URL"
