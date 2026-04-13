@@ -1,28 +1,114 @@
 import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Layout } from "@/components/layout/Layout";
 import hero from "@/images/1st.jpeg";
 import { useAdminData } from "@/contexts/AdminDataContext";
 import promiseImg from "@/images/2nd.jpeg";
+import { SafeImage } from "@/components/ui/SafeImage";
+
+// Hide-if-broken wrappers so missing Supabase files never render tiles
+const CollectionTile = ({ collection, index }: any) => {
+  const [hide, setHide] = useState(false);
+  if (!collection.image || hide) return null;
+  return (
+    <Link
+      key={collection.id}
+      to={`/shop?category=${encodeURIComponent(collection.name)}`}
+      className="group block"
+      style={{ animationDelay: `${index * 0.1}s` }}
+    >
+      <div className="aspect-[4/5] bg-secondary overflow-hidden">
+        <SafeImage
+          src={collection.image}
+          alt={collection.name}
+          className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+          fallback={null}
+          onImageError={() => setHide(true)}
+        />
+      </div>
+      <div className="mt-5 text-center px-4">
+        <h3 className="text-xl font-serif font-light text-primary tracking-wide mb-2 group-hover:tracking-wider transition-all duration-300">
+          {collection.name}
+        </h3>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+          {collection.description}
+        </p>
+        <span className="inline-block text-xs uppercase tracking-[0.18em] border-b border-primary/40 pb-1 text-primary/80 group-hover:border-primary group-hover:text-primary transition-all duration-300">
+          View Collection
+        </span>
+      </div>
+    </Link>
+  );
+};
+
+const CategoryTile = ({ category, index }: any) => {
+  const [hide, setHide] = useState(false);
+  if (!category.image || hide) return null;
+  return (
+    <Link
+      key={category.id}
+      to={category.href}
+      className="group block"
+      style={{ animationDelay: `${index * 0.1}s` }}
+    >
+      <div className="aspect-[4/5] bg-secondary overflow-hidden">
+        <SafeImage
+          src={category.image}
+          alt={category.name}
+          className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+          fallback={null}
+          onImageError={() => setHide(true)}
+        />
+      </div>
+      <div className="mt-5 text-center px-4">
+        <h3 className="text-xl font-serif font-light text-primary tracking-wide mb-2 group-hover:tracking-wider transition-all duration-300">
+          {category.name}
+        </h3>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+          {category.description}
+        </p>
+        <span className="inline-block text-xs uppercase tracking-[0.18em] border-b border-primary/40 pb-1 text-primary/80 group-hover:border-primary group-hover:text-primary transition-all duration-300">
+          View Category
+        </span>
+      </div>
+    </Link>
+  );
+};
 
 
 const Index = () => {
   const { products, categories: backendCategories, collections } = useAdminData();
-  const featuredProducts = products.filter(p => p.featured);
-  const bestsellers = products.filter(p => p.bestseller);
-  const newArrivals = [...products].sort((a, b) => {
+  const featuredProducts = useMemo(
+    () => products.filter((p) => p.featured && p.image),
+    [products]
+  );
+  const bestsellers = useMemo(
+    () => products.filter((p) => p.bestseller && p.image),
+    [products]
+  );
+  const newArrivals = useMemo(() => [...products]
+  .filter((p) => p.image)
+  .sort((a, b) => {
     const dateA = new Date(a.created_at || 0).getTime();
     const dateB = new Date(b.created_at || 0).getTime();
     return dateB - dateA;
-  }).slice(0, 4);
+  }).slice(0, 4), [products]);
 
-  const displayCategories = backendCategories.slice(0, 3).map(c => ({
-    id: c.id,
-    name: c.name,
-    description: c.description || "Premium hair collection",
-    image: c.image,
-    href: `/shop?category=${encodeURIComponent(c.name)}`,
-  }));
+  const displayCategories = useMemo(
+    () =>
+      backendCategories
+        .slice(0, 3)
+        .map((c) => ({
+          id: c.id,
+          name: c.name,
+          description: c.description || "Premium hair collection",
+          image: c.image,
+          href: `/shop?category=${encodeURIComponent(c.name)}`,
+        }))
+        .filter((c) => c.image),
+    [backendCategories]
+  );
 
   return (
     <Layout>
@@ -92,41 +178,14 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-  {collections.map((collection, index) => (
-    <Link
-      key={collection.id}
-      to={`/shop?category=${encodeURIComponent(collection.name)}`}
-      className="group block"
-      style={{ animationDelay: `${index * 0.1}s` }}
-    >
-      {/* Image */}
-      <div className="aspect-[4/5] bg-secondary overflow-hidden">
-        {collection.image && (
-          <img
-            src={collection.image}
-            alt={collection.name}
-            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
-          />
-        )}
-      </div>
-
-      {/* Text below image */}
-      <div className="mt-5 text-center px-4">
-        <h3 className="text-xl font-serif font-light text-primary tracking-wide mb-2 group-hover:tracking-wider transition-all duration-300">
-          {collection.name}
-        </h3>
-
-        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-          {collection.description}
-        </p>
-
-        <span className="inline-block text-xs uppercase tracking-[0.18em] border-b border-primary/40 pb-1 text-primary/80 group-hover:border-primary group-hover:text-primary transition-all duration-300">
-          View Collection
-        </span>
-      </div>
-    </Link>
-  ))}
-</div>
+              {collections.map((collection, index) => (
+                <CollectionTile
+                  key={collection.id}
+                  collection={collection}
+                  index={index}
+                />
+              ))}
+            </div>
 
           </div>
         </section>
@@ -142,41 +201,14 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-  {displayCategories.map((category, index) => (
-    <Link
-      key={category.id}
-      to={category.href}
-      className="group block"
-      style={{ animationDelay: `${index * 0.1}s` }}
-    >
-      {/* Image */}
-      <div className="aspect-[4/5] bg-secondary overflow-hidden">
-        {category.image && (
-          <img
-            src={category.image}
-            alt={category.name}
-            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
-          />
-        )}
-      </div>
-
-      {/* Text below image */}
-      <div className="mt-5 text-center px-4">
-        <h3 className="text-xl font-serif font-light text-primary tracking-wide mb-2 group-hover:tracking-wider transition-all duration-300">
-          {category.name}
-        </h3>
-
-        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-          {category.description}
-        </p>
-
-        <span className="inline-block text-xs uppercase tracking-[0.18em] border-b border-primary/40 pb-1 text-primary/80 group-hover:border-primary group-hover:text-primary transition-all duration-300">
-          View Category
-        </span>
-      </div>
-    </Link>
-  ))}
-</div>
+              {displayCategories.map((category, index) => (
+                <CategoryTile
+                  key={category.id}
+                  category={category}
+                  index={index}
+                />
+              ))}
+            </div>
 
           </div>
         </section>
